@@ -1,0 +1,29 @@
+object CrossPanelPIU: TCrossPanelPIU
+  Left = 0
+  Top = 0
+  Width = 720
+  Height = 700
+  VertScrollBar.Position = 170
+  VertScrollBar.Range = 894
+  VertScrollBar.Size = 10
+  VertScrollBar.Tracking = True
+  BorderStyle = bsToolWindow
+  Caption = 'CrossPanelPIU'
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  Position = poScreenCenter
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object imgCrossPanelPIU: TImage
+    Left = 8
+    Top = -162
+    Width = 686
+    Height = 894
+  end
+end
