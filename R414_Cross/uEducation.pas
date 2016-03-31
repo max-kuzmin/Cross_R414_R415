@@ -168,12 +168,17 @@ implementation
     //==========================================
     TaskNetParams:= TNetParamsList.Create;
     TaskNetParams.AddKeyValue('R414Connected', 'False');
-
-         if (TaskNetParams.GetBoolValue('R414Connected') = True) then
-  begin
-      TaskNetParams.ChangeValue('TestCross','True');
-      SendTaskParamsR414('TestCross','True');
-  end;
+    TaskNetParams.AddKeyValue('CrossVoiceGood', 'False');
+    TaskNetParams.AddKeyValue('R414StartTestLines', 'False');
+    TaskNetParams.AddKeyValue('CrossStartTestLines', 'False');
+    TaskNetParams.AddKeyValue('R414Set1Line4Wire', 'False');
+    TaskNetParams.AddKeyValue('CrossAgreeSet1Line', 'False');
+    TaskNetParams.AddKeyValue('CrossHowVoiceLine1', 'False');
+    TaskNetParams.AddKeyValue('R414GiveCallLine1', 'False');
+    TaskNetParams.AddKeyValue('CrossCallGivenLine1', 'False');
+    TaskNetParams.AddKeyValue('R414CallGotLine1', 'False');
+    TaskNetParams.AddKeyValue('R414CallGivenLine1', 'False');
+    TaskNetParams.AddKeyValue('CrossCallGotLine1', 'False');
 
   end;
 
@@ -256,6 +261,7 @@ implementation
           begin
                FSendMessage(self.formChat.Edit1.Text,  self.formChat.LinkedCrossUserName);
           end;
+          self.sendMessage := self.formChat.getTypeMessage(self.formChat.Edit1.Text);
           self.formChat.Memo1.Lines.Add(self.formChat.UserName + ': ' + self.formChat.Edit1.Text);
           self.formChat.Edit1.Text := '';
        end
@@ -373,8 +379,20 @@ implementation
 
           end;
 
+
+         if (Online) then
+         begin
+           if (self.sendMessage = EVoice_good) then
+           begin
+              SendTaskParamsR414('CrossVoiceGood', 'True');
+              TaskNetParams.ChangeValue('CrossVoiceGood', 'True');
+              if (TaskNetParams.GetBoolValue('R414StartTestLines') = true) then
+                  self.educationState := ESet_lin;
+           end;
+         end
+
           //если нет ошибок идем в следующий пункт и блочим выключатели
-          if (self.sendMessage = EVoice_good)and(self.objects[7].noImage = 0)
+          else if (self.sendMessage = EVoice_good)and(self.objects[7].noImage = 0)
             and (self.formChat.rbPSSBM.Checked = true) then
           begin
             self.educationState := ESet_lin;
@@ -403,6 +421,11 @@ implementation
 
     if (self.objects[7].noImage <> 0)and(self.sendMessage = EVoice_good) then
       self.formConsole.Memo1.Lines.Add('5. Блок "ПСС-БМ", ЛИН.1 в нейтральное положение.');
+
+    if (Online and (self.objects[7].noImage = 0)and(self.sendMessage = EVoice_good) ) then
+    begin
+        self.formConsole.Memo1.Lines.Add('6. Дождитесь ответа от Р414: "БП310, приготовиться к проверке соединительных линий"');
+    end;
   end;
   {$ENDREGION}
   //---
@@ -412,6 +435,7 @@ implementation
       if self.educationState = ESet_lin then
       begin
           self.setSoedLinQuestions();
+
 
           //если пользователь открыл чат, продолжаем
           if self.formChat.Visible = true then
@@ -425,8 +449,18 @@ implementation
 
           end;
 
+          if (Online) then
+           begin
+                if (self.sendMessage = ESoed_prov_got) then
+                begin
+                SendTaskParamsR414('CrossStartTestLines', 'True');
+                TaskNetParams.ChangeValue('CrossStartTestLines', 'True');
+                if (TaskNetParams.GetBoolValue('R414Set1Line4Wire') = true) then
+                  self.educationState := ESet_lin1;
+                end;
+           end
           //если нет ошибок идем в следующий пункт и блочим выключатели
-          if (self.sendMessage = ESoed_prov_got)and(self.objects[7].noImage = 0)
+          else if (self.sendMessage = ESoed_prov_got)and(self.objects[7].noImage = 0)
             and (self.formChat.rbPSSBM.Checked = true) then
           begin
             self.educationState := ESet_lin1;
@@ -456,6 +490,11 @@ implementation
 
     if (self.objects[7].noImage <> 0)and(self.sendMessage = ESoed_prov_got) then
       self.formConsole.Memo1.Lines.Add('5. Блок "ПСС-БМ", ЛИН.1 в нейтральное положение.');
+
+    if (Online and (self.objects[7].noImage = 0) and (self.sendMessage = ESoed_prov_got)) then
+      begin
+          self.formConsole.Memo1.Lines.Add('6. Дождитесь ответа от Р414: "Встаньте разговором на первую соединительную линию в 4ПР режиме"');
+      end;
   end;
   //----------------------------------------------------------------------------
     procedure TEducation.setSoedLin1(name : string);
@@ -476,8 +515,17 @@ implementation
 
           end;
 
+          if (Online) then
+           begin
+                if (self.sendMessage = EStanovlus) then
+                begin
+                  SendTaskParamsR414('CrossAgreeSet1Line', 'True');
+                  TaskNetParams.ChangeValue('CrossAgreeSet1Line', 'True');
+                  self.educationState := EUst_org;
+                end;
+           end
           //если нет ошибок идем в следующий пункт и блочим выключатели
-          if (self.sendMessage = EStanovlus)and(self.objects[7].noImage = 0)
+          else if (self.sendMessage = EStanovlus)and(self.objects[7].noImage = 0)
             and (self.formChat.rbPSSBM.Checked = true) then
           begin
             self.educationState := EUst_org;
@@ -496,9 +544,12 @@ implementation
       self.formConsole.Memo1.Lines.Add('2. Блок "ПСС-БМ", ЛИН.1 в положение ГГС.');
 
      if self.sendMessage <> EStanovlus then
+     begin
       self.formConsole.Memo1.Lines.Add('3. Ответьте: "Понял. Становлюсь"');
+      self.formChat.Edit1.Text:= 'Понял. Становлюсь';
+     end;
 
-    if (self.objects[7].noImage <> 0)and(self.sendMessage = EStanovlus) then
+    if (self.objects[7].noImage <> 0) and (self.sendMessage = EStanovlus) then
       self.formConsole.Memo1.Lines.Add('4. Блок "ПСС-БМ", ЛИН.1 в нейтральное положение.');
   end;
   {$ENDREGION}
@@ -554,8 +605,17 @@ implementation
             self.formChat.Button1.Enabled := true;
           end;
 
+          if (Online) then
+           begin
+                if (self.sendMessage = EHow_voice) then
+                begin
+                  SendTaskParamsR414('CrossHowVoiceLine1', 'True');
+                  TaskNetParams.ChangeValue('CrossHowVoiceLine1', 'True');
+                  self.educationState := EUst_org;
+                end;
+           end
           //если нет ошибок идем в следующий пункт и блочим выключатели
-          if (self.sendMessage = EHow_voice)and(self.formChat.rbPiuB.Checked = true) then
+          else if (self.sendMessage = EHow_voice)and(self.formChat.rbPiuB.Checked = true) then
           begin
             self.educationState := EZapr_viz;
             //для следующего пункта
@@ -570,9 +630,14 @@ implementation
       self.formConsole.Memo1.Lines.Add('1. "Окна->Связь" выберите трубку "ПИУ-Б" для разговора.');
      if self.sendMessage <> EHow_voice then
      begin
-      self.formConsole.Memo1.Lines.Add('4. Ответьте: "БП360, я БП310 как меня слышите ?"');
+      self.formConsole.Memo1.Lines.Add('2. Ответьте: "БП360, я БП310 как меня слышите ?"');
       self.formChat.Edit1.Text:= 'К проверке соединительных линий готов';
      end;
+
+     if (Online and (self.sendMessage = EHow_voice)) then
+      begin
+          self.formConsole.Memo1.Lines.Add('3. Дождитесь ответа от Р414: "Слышу вас хорошо, дайте мне вызов"');
+      end;
   end;
   {$ENDREGION}
 
