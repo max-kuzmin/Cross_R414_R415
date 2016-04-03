@@ -166,19 +166,36 @@ implementation
     Online:= false;
 
     //==========================================
-    TaskNetParams:= TNetParamsList.Create;
+        TaskNetParams:= TNetParamsList.Create;
     TaskNetParams.AddKeyValue('R414Connected', 'False');
     TaskNetParams.AddKeyValue('CrossVoiceGood', 'False');
     TaskNetParams.AddKeyValue('R414StartTestLines', 'False');
-    TaskNetParams.AddKeyValue('CrossStartTestLines', 'False');
-    TaskNetParams.AddKeyValue('R414Set1Line4Wire', 'False');
-    TaskNetParams.AddKeyValue('CrossAgreeSet1Line', 'False');
+
+    TaskNetParams.AddKeyValue('CrossStartTestLine1', 'False');
+    TaskNetParams.AddKeyValue('R414Set4WireLine1', 'False');
+    TaskNetParams.AddKeyValue('CrossAgreeSetLine1', 'False');
     TaskNetParams.AddKeyValue('CrossHowVoiceLine1', 'False');
     TaskNetParams.AddKeyValue('R414GiveCallLine1', 'False');
     TaskNetParams.AddKeyValue('CrossCallGivenLine1', 'False');
     TaskNetParams.AddKeyValue('R414CallGotLine1', 'False');
     TaskNetParams.AddKeyValue('R414CallGivenLine1', 'False');
     TaskNetParams.AddKeyValue('CrossCallGotLine1', 'False');
+
+    TaskNetParams.AddKeyValue('CrossStartTestLine2', 'False');
+    TaskNetParams.AddKeyValue('R414Set4WireLine2', 'False');
+    TaskNetParams.AddKeyValue('CrossAgreeSetLine2', 'False');
+    TaskNetParams.AddKeyValue('CrossHowVoiceLine2', 'False');
+    TaskNetParams.AddKeyValue('R414GiveCallLine2', 'False');
+    TaskNetParams.AddKeyValue('CrossCallGivenLine2', 'False');
+    TaskNetParams.AddKeyValue('R414CallGotLine2', 'False');
+    TaskNetParams.AddKeyValue('R414CallGivenLine2', 'False');
+    TaskNetParams.AddKeyValue('CrossCallGotLine2', 'False');
+
+    TaskNetParams.AddKeyValue('R414InstCheckLine1', 'False');
+    TaskNetParams.AddKeyValue('CrossInstCheckDoneLine1', 'False');
+    TaskNetParams.AddKeyValue('R414InstCheckLine2', 'False');
+    TaskNetParams.AddKeyValue('CrossInstCheckDoneLine2', 'False');
+    TaskNetParams.AddKeyValue('R414Wait', 'False');
 
   end;
 
@@ -451,11 +468,11 @@ implementation
 
           if (Online) then
            begin
-                if (self.sendMessage = ESoed_prov_got) then
+                if (self.sendMessage = ESoed_prov_got) and (self.objects[7].noImage = 0) then
                 begin
-                SendTaskParamsR414('CrossStartTestLines', 'True');
-                TaskNetParams.ChangeValue('CrossStartTestLines', 'True');
-                if (TaskNetParams.GetBoolValue('R414Set1Line4Wire') = true) then
+                SendTaskParamsR414('CrossStartTestLine'+ IntToStr(self.provSoedLin), 'True');
+                TaskNetParams.ChangeValue('CrossStartTestLine'+ IntToStr(self.provSoedLin), 'True');
+                if (TaskNetParams.GetBoolValue('R414Set4WireLine' + IntToStr(self.provSoedLin)) = true) then
                   self.educationState := ESet_lin1;
                 end;
            end
@@ -493,7 +510,7 @@ implementation
 
     if (Online and (self.objects[7].noImage = 0) and (self.sendMessage = ESoed_prov_got)) then
       begin
-          self.formConsole.Memo1.Lines.Add('6. Дождитесь ответа от Р414: "Встаньте разговором на первую соединительную линию в 4ПР режиме"');
+          self.formConsole.Memo1.Lines.Add('6. Дождитесь ответа от Р414: "Встаньте разговором на ' + IntToStr(self.provSoedLin) + '-ю соединительную линию в 4ПР режиме"');
       end;
   end;
   //----------------------------------------------------------------------------
@@ -517,10 +534,10 @@ implementation
 
           if (Online) then
            begin
-                if (self.sendMessage = EStanovlus) then
+                if (self.sendMessage = EStanovlus) and (self.objects[7].noImage = 0) then
                 begin
-                  SendTaskParamsR414('CrossAgreeSet1Line', 'True');
-                  TaskNetParams.ChangeValue('CrossAgreeSet1Line', 'True');
+                  SendTaskParamsR414('CrossAgreeSetLine'+ IntToStr(self.provSoedLin), 'True');
+                  TaskNetParams.ChangeValue('CrossAgreeSetLine' + IntToStr(self.provSoedLin), 'True');
                   self.educationState := EUst_org;
                 end;
            end
@@ -607,11 +624,12 @@ implementation
 
           if (Online) then
            begin
-                if (self.sendMessage = EHow_voice) then
+                if (self.sendMessage = EHow_voice) and (self.formChat.rbPiuB.Checked = true) then
                 begin
-                  SendTaskParamsR414('CrossHowVoiceLine1', 'True');
-                  TaskNetParams.ChangeValue('CrossHowVoiceLine1', 'True');
-                  self.educationState := EUst_org;
+                  SendTaskParamsR414('CrossHowVoiceLine' + IntToStr(self.provSoedLin), 'True');
+                  TaskNetParams.ChangeValue('CrossHowVoiceLine' + IntToStr(self.provSoedLin), 'True');
+                  if (TaskNetParams.GetBoolValue('R414GiveCallLine' + IntToStr(self.provSoedLin)) = true) then
+                    self.educationState := EZapr_viz;
                 end;
            end
           //если нет ошибок идем в следующий пункт и блочим выключатели
@@ -631,7 +649,7 @@ implementation
      if self.sendMessage <> EHow_voice then
      begin
       self.formConsole.Memo1.Lines.Add('2. Ответьте: "БП360, я БП310 как меня слышите ?"');
-      self.formChat.Edit1.Text:= 'К проверке соединительных линий готов';
+      self.formChat.Edit1.Text:= 'БП360 я БП310 как меня слышите ?';
      end;
 
      if (Online and (self.sendMessage = EHow_voice)) then
@@ -654,8 +672,18 @@ implementation
             self.formChat.Button1.Enabled := true;
           end;
 
+
+          if (Online) then
+           begin
+                if (self.sendMessage = EDaiu_viz) and (self.formChat.rbPiuB.Checked = true) then
+                begin
+                  SendTaskParamsR414('CrossCallGivenLine' + IntToStr(self.provSoedLin), 'True');
+                  TaskNetParams.ChangeValue('CrossCallGivenLine' + IntToStr(self.provSoedLin), 'True');
+                  self.educationState := EDat_viz1;
+                end;
+           end
           //если нет ошибок идем в следующий пункт и блочим выключатели
-          if (self.sendMessage = EDaiu_viz)and(self.formChat.rbPiuB.Checked = true) then
+          else if (self.sendMessage = EDaiu_viz)and(self.formChat.rbPiuB.Checked = true) then
           begin
             self.educationState := EDat_viz1;
             //для следующего пункта
@@ -707,9 +735,19 @@ implementation
           //если нет ошибок идем в следующий пункт и блочим выключатели
           if (self.objects[3].noImage = 2)  then
           begin
-            self.educationState := EPol_viz1;
-            //для следующего пункта
-            self.formChat.Memo1.Lines.Add(' Корреспондент: Ваш вызов получил. Даю вызов вам.');
+
+            if (Online) then
+            begin
+              if (TaskNetParams.GetBoolValue('R414CallGotLine' + IntToStr(self.provSoedLin)) = true) then
+                    self.educationState := EPol_viz1;
+            end
+            else
+            begin
+              self.educationState := EPol_viz1;
+              //для следующего пункта
+              self.formChat.Memo1.Lines.Add(' Корреспондент: Ваш вызов получил. Даю вызов вам.');
+            end;
+            
           end;
       end;
     end;
@@ -718,6 +756,11 @@ implementation
     begin
        if self.objects[3].noImage <> 2 then
         self.formConsole.Memo1.Lines.Add('1. Блок "ПИУ-Б", РАЗГ.');
+
+        if (Online) then
+          begin
+              self.formConsole.Memo1.Lines.Add('2. Дождитесь ответа от Р414: "Ваш вызов получил. Даю вызов вам."');
+          end;
     end;
   {$ENDREGION}
 
@@ -815,8 +858,31 @@ implementation
           self.formChat.Button1.Enabled := true;
         end;
 
+
+        if (Online) then
+           begin
+                if (self.sendMessage = EViz_poluch) and (self.formChat.rbPiuB.Checked = true) then
+                begin
+                  SendTaskParamsR414('CrossCallGotLine' + IntToStr(self.provSoedLin), 'True');
+                  TaskNetParams.ChangeValue('CrossCallGotLine' + IntToStr(self.provSoedLin), 'True');
+                  if (TaskNetParams.GetBoolValue('R414CallGivenLine' + IntToStr(self.provSoedLin)) = true) then
+                    begin
+                      if self.provSoedLin < chisloLiniiR414 then
+                      begin
+                        self.provSoedLin := self.provSoedLin + 1;
+                        self.educationState := ESet_lin;
+                        self.formChat.Button1.Enabled := false;
+                        self.changCrossEducation('');
+                      end
+                      else if (TaskNetParams.GetBoolValue('R414InstCheckLine1') = true) then
+                      begin
+                        self.educationState := EInst_prov;
+                      end;
+                    end;
+                end;
+           end
         //если нет ошибок идем в следующий пункт и блочим выключатели
-        if (self.sendMessage = EViz_poluch)and(self.formChat.rbPiuB.Checked = true) then
+        else if (self.sendMessage = EViz_poluch)and(self.formChat.rbPiuB.Checked = true) then
         begin
           if self.provSoedLin < chisloLiniiR414 then
           begin
@@ -844,22 +910,52 @@ implementation
 
      if self.sendMessage <> EViz_poluch then
      begin
-      self.formConsole.Memo1.Lines.Add('4. Ответьте: "Ваш вызов получил."');
+      self.formConsole.Memo1.Lines.Add('2. Ответьте: "Ваш вызов получил."');
       self.formChat.Edit1.Text:= 'Ваш вызов получил';
      end;
+     if (Online and (self.sendMessage = EViz_poluch) and (self.provSoedLin = chisloLiniiR414)) then
+      begin
+          self.formConsole.Memo1.Lines.Add('3. Дождитесь ответа от Р414: "Для инструментальной проверки включите шлейф по 1-й линии."');
+      end;
   end;
   {$ENDREGION}
   //---
-  {$REGION '9.Инуструментальная проверка'}
+  {$REGION '9.Инструментальная проверка'}
   procedure TEducation.instrProv(name : string);
   begin
     if self.educationState = EInst_prov then
     begin
         self.instrProvQuestions();
 
-        //если нет ошибок идем в следующий пункт и блочим выключатели
-        if (self.objects[26 + instrumProvSoedLin*2].noImage = 1 ) then
+
+        if (Online) then
         begin
+
+          if self.instrumProvSoedLin < chisloLiniiR414 then
+          begin
+              if (self.objects[26 + instrumProvSoedLin*2].noImage = 1 ) then
+              begin
+                SendTaskParamsR414('CrossInstCheckDoneLine' + IntToStr(self.instrumProvSoedLin), 'True');
+                TaskNetParams.ChangeValue('CrossInstCheckDoneLine' + IntToStr(self.instrumProvSoedLin), 'True');
+
+                if (TaskNetParams.GetBoolValue('R414InstCheckLine' + IntToStr(self.instrumProvSoedLin+1)) = True) or
+                 (TaskNetParams.GetBoolValue('R414Wait') = True) then
+                begin
+                    self.instrumProvSoedLin := self.instrumProvSoedLin + 1;
+                    self.formChat.Button1.Enabled := false;
+                    self.changCrossEducation('');
+                end;
+
+              end;
+          end;
+        end
+
+
+
+        //если нет ошибок идем в следующий пункт и блочим выключатели
+        else if (self.objects[26 + instrumProvSoedLin*2].noImage = 1 ) then
+        begin
+
           if self.instrumProvSoedLin < chisloLiniiR414 then
           begin
             self.instrumProvSoedLin := self.instrumProvSoedLin + 1;
@@ -883,7 +979,10 @@ implementation
   procedure TEducation.instrProvQuestions();
   begin
     if self.objects[26 + instrumProvSoedLin*2].noImage <> 1 then
-      self.formConsole.Memo1.Lines.Add('Установите 4ПР шлейф в ЛИНИИ.' + IntToStr(self.instrumProvSoedLin));
+      begin
+        self.formConsole.Memo1.Lines.Add('1. Установите 4ПР шлейф в ЛИНИИ.' + IntToStr(self.instrumProvSoedLin));
+        self.formConsole.Memo1.Lines.Add('2. Дождитесь ответа корреспондента' + IntToStr(self.instrumProvSoedLin));
+      end;
   end;
   {$ENDREGION}
   //---
