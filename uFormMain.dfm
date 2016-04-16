@@ -13,6 +13,7 @@ object formMain: TformMain
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  Position = poDefault
   WindowState = wsMaximized
   OnClose = FormClose
   OnCreate = FormCreate

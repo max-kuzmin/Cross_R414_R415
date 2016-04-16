@@ -4,8 +4,8 @@ object formChat: TformChat
   BorderIcons = []
   BorderStyle = bsNone
   Caption = #1056#1072#1079#1075#1086#1074#1086#1088
-  ClientHeight = 228
-  ClientWidth = 448
+  ClientHeight = 184
+  ClientWidth = 451
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,24 +19,24 @@ object formChat: TformChat
   object GroupBox1: TGroupBox
     Left = 0
     Top = 0
-    Width = 384
-    Height = 184
+    Width = 387
+    Height = 140
     Align = alClient
     Caption = #1057#1074#1103#1079#1100':'
     TabOrder = 0
     object Memo1: TMemo
       Left = 2
       Top = 15
-      Width = 380
-      Height = 135
+      Width = 383
+      Height = 91
       Align = alClient
       ScrollBars = ssVertical
       TabOrder = 0
     end
     object GroupBox3: TGroupBox
       Left = 2
-      Top = 150
-      Width = 380
+      Top = 106
+      Width = 383
       Height = 32
       Align = alBottom
       TabOrder = 1
@@ -60,10 +60,10 @@ object formChat: TformChat
     end
   end
   object GroupBox2: TGroupBox
-    Left = 384
+    Left = 387
     Top = 0
     Width = 64
-    Height = 184
+    Height = 140
     Align = alRight
     Caption = #1058#1088#1091#1073#1082#1072':'
     TabOrder = 1
@@ -88,8 +88,8 @@ object formChat: TformChat
   end
   object GroupBox4: TGroupBox
     Left = 0
-    Top = 184
-    Width = 448
+    Top = 140
+    Width = 451
     Height = 44
     Align = alBottom
     Caption = #1057#1086#1073#1077#1089#1077#1076#1085#1080#1082#1080':'

@@ -290,6 +290,7 @@ uses
           if kvRecord.Key <> KEY_TYPE then
           begin
               Education.TaskNetParams.ChangeValue(kvRecord.Key, kvRecord.Value);
+              Education.changCrossEducation('');
           end;
         except
           on E: Exception do;

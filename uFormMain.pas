@@ -69,10 +69,11 @@ begin
 
   self.formNavigator := TformNavigator.Create(self);
   self.formNavigator.Parent := self;
-  self.formNavigator.Show;
+  self.formNavigator.Hide;
   self.formNavigator.addCrossForm(formCross);
 
   self.formChat := TformChat.Create(self);
+  self.formChat.Show;
   self.formChat.Parent := self;
   tcpClientCross := TTCPClientCross.Create(self.formChat);
 
