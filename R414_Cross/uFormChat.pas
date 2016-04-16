@@ -100,7 +100,7 @@ implementation
    if ((Pos('Вызов',name) <> 0)or(Pos('вызов',name) <> 0))and((Pos('Получил',name) <> 0)or(Pos('получил',name) <> 0)) then
       exit(EViz_poluch);
 
-   if ((Pos('Сдаю',name) <> 0)or(Pos('сдаю',name) <> 0))and((Pos('Эксплуатацию',name) <> 0)or(Pos('эусплуатацию',name) <> 0)) then
+   if ((Pos('Сдаю',name) <> 0)or(Pos('сдаю',name) <> 0))and((Pos('Эксплуатацию',name) <> 0)or(Pos('эксплуатацию',name) <> 0)) then
       exit(ESday_eksp);
 
    if ((Pos('Проверяю',name) <> 0)or(Pos('проверяю',name) <> 0)) then
